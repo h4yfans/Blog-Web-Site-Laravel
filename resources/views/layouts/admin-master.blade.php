@@ -14,6 +14,7 @@
 
 <script>
     var baseUrl = "{{ URL::asset('/') }}";
+    console.log(baseUrl);
 </script>
 @yield('scripts')
 
