@@ -31,9 +31,15 @@
                                     <div class="edit">
                                         <nav>
                                             <ul>
-                                                <li><a href="{{route('admin.blog.post', ['post_id' => $post->id, 'end' => 'admin'])}}">View Post</a></li>
-                                                <li><a href="{{route('admin.blog.post.edit', ['post_id' => $post->id])}}">Edit</a></li>
-                                                <li><a href="{{route('admin.blog.post.delete', ['post_id' => $post->id])}}" class="danger">Delete</a></li>
+                                                <li>
+                                                    <a href="{{route('admin.blog.post', ['post_id' => $post->id, 'end' => 'admin'])}}">View
+                                                        Post</a></li>
+                                                <li>
+                                                    <a href="{{route('admin.blog.post.edit', ['post_id' => $post->id])}}">Edit</a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{route('admin.blog.post.delete', ['post_id' => $post->id])}}"
+                                                       class="danger">Delete</a></li>
                                             </ul>
                                         </nav>
                                     </div>
@@ -55,32 +61,35 @@
             </header>
             <section>
                 <ul>
-                    {{--if no POST--}}
-                    <li>No Posts</li>
-                    {{--if Messages--}}
-                    <li>
-                        <article data-message="Body" data-id="ID">
-                            <div class="message-info">
-                                <h3>Message Subject</h3>
-                                <span class="info">Sender ... - Date</span>
-                            </div>
-                            <div class="edit">
-                                <nav>
-                                    <ul>
-                                        <li><a href="#">View</a></li>
-                                        <li><a href="#" class="danger">Delete</a></li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </article>
-                    </li>
+                    @if(count($contact_messages) == 0)
+                        <li>No Messages</li>
+                    @endif
+                    @foreach($contact_messages as $contact_message)
+                        <li>
+                            <article data-message="{{$contact_message->body}}" data-id="{{$contact_message->id}}">
+                                <div class="message-info">
+                                    <h3>{{$contact_message->subject}}</h3>
+                                    <span class="info">{{$contact_message->sender}} | {{$contact_message->created_at}}</span>
+                                </div>
+                                <div class="edit">
+                                    <nav>
+                                        <ul>
+                                            <li><a href="#">View</a></li>
+                                            <li><a href="#" class="danger">Delete</a></li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </article>
+                        </li>
+                    @endforeach
+
                 </ul>
             </section>
         </div>
     </div>
 
     <div class="modal" id="contact-message-info">
-        <button class="btn" id="modal">Close</button>
+        <button class="btn" id="modal-close">Close</button>
     </div>
 @endsection
 

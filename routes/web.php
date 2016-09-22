@@ -38,10 +38,31 @@ Route::group(['middleware' => ['web']], function () {
         'as'   => 'contact'
     ]);
 
-    Route::group(['prefix' => '/admin'], function () {
+    Route::post('/contact/sendmail', [
+        'uses' => 'ContactMessageController@postSendMessage',
+        'as'   => 'contact.send'
+    ]);
+
+    Route::get('/admin/login',[
+        'uses' => 'AdminController@getLogin',
+        'as' => 'admin.login'
+    ]);
+
+    Route::post('/admin/login',[
+        'uses' => 'AdminController@postLogin',
+        'as' => 'admin.login'
+    ]);
+
+
+    Route::group(['prefix' => '/admin', 'middleware' => 'auth'], function () {
         Route::get('/', [
             'uses' => 'AdminController@getIndex',
             'as'   => 'admin.index'
+        ]);
+
+        Route::get('logout',[
+            'uses' => 'AdminController@getLogout',
+            'as' => 'admin.logout'
         ]);
 
         Route::get('/blog/posts', [
@@ -71,7 +92,7 @@ Route::group(['middleware' => ['web']], function () {
 
         Route::post('/blog/category/create', [
             'uses' => 'CategoryController@postCreateCategory',
-            'as'   => 'admin.blog.post.create'
+            'as'   => 'admin.blog.category.create'
         ]);
 
         Route::get('/blog/post/{post_id}/edit', [
@@ -92,6 +113,21 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/blog/post/{post_id}/delete', [
             'uses' => 'PostController@getDeletePost',
             'as'   => 'admin.blog.post.delete'
+        ]);
+
+        Route::get('blog/category/{category_id}/delete', [
+            'uses' => 'CategoryController@getDeleteCategory',
+            'as'   => 'admin.blog.category.delete'
+        ]);
+
+        Route::get('/contact/messages', [
+            'uses' => 'ContactMessageController@getContactMessageIndex',
+            'as'   => 'admin.contact.index'
+        ]);
+
+        Route::get('/contact/message/{message_id}/delete', [
+            'uses' => 'ContactMessageController@getDeleteMessage',
+            'as'   => 'admin.contact.delete'
         ]);
     });
 });

@@ -10,6 +10,7 @@ var docReady = setInterval(function () {
 
     for (var i = 0; i < editSections.length; i++) {
         editSections[i].firstElementChild.firstElementChild.children[1].firstChild.addEventListener('click', startEdit);
+        editSections[i].firstElementChild.firstElementChild.children[2].firstChild.addEventListener('click', startDelete);
     }
     document.getElementsByClassName('btn')[0].addEventListener('click', createNewCategory);
 
@@ -32,7 +33,8 @@ function startEdit(event) {
     event.preventDefault();
     event.target.innerText = 'Save';
     var li = event.path[2].children[0];
-    li.children[0].nodeValue = event.path[4].previousElementSibling.children[0].innerText;
+    console.log(li.children[0].value);
+    li.children[0].value = event.path[4].previousElementSibling.children[0].innerText;
     li.style.display = "inline-block";
     setTimeout(function () {
         li.children[0].style.maxWidth = "110px";
@@ -47,33 +49,61 @@ function saveEdit(event) {
     var li = event.path[2].children[0];
     var categoryName = li.children[0].value;
     var categoryId = event.path[4].previousElementSibling.dataset['id'];
-    if (categoryName.length === 0){
+    if (categoryName.length === 0) {
         alert("Please enter a valid category name");
         return;
     }
-    ajax("POST", "/admin/blog/categories/update", "name=", categoryName + "&category_id=" + categoryId, endEdit, [event]);
+    ajax("POST", "/admin/blog/categories/update", "name=" + categoryName + "&category_id=" + categoryId, endEdit, [event]);
 }
 
 function endEdit(params, success, responseObj) {
     var event = params[0];
-    if(success){
+    if (success) {
         var newName = responseObj.new_name;
         var article = event.path[5];
         article.style.backgroundColor = '#afefac';
         setTimeout(function () {
-           article.style.backgroundColor = "white";
-        },300);
+            article.style.backgroundColor = "white";
+        }, 300);
         article.firstElementChild.firstElementChild.innerHTML = newName;
     }
     event.target.innerText = "Edit";
     var li = event.path[2].children[0];
     li.children[0].style.maxWidth = "0px";
+
     setTimeout(function () {
         li.style.display = "none";
-    },310);
-    event.target.removeEventListener('click',saveEdit);
+    }, 310);
+
+    event.target.removeEventListener('click', saveEdit);
     event.target.addEventListener('click', startEdit);
 }
+
+
+function startDelete(event) {
+    //Opn Modal to ask if your is sure
+    deleteCategory(event);
+}
+
+function deleteCategory(event) {
+    //Opn Modal to ask if your is sure
+    event.preventDefault();
+    event.target.removeEventListener('click', startDelete);
+    var categoryId = event.path[4].previousElementSibling.dataset['id'];
+    ajax('GET', '/admin/blog/category/' + categoryId + "/delete", null, categoryDeleted, [event.path[5]]);
+}
+
+function categoryDeleted(params, success, responseObj) {
+    var article = params[0];
+    if (success) {
+        article.style.backgroundColor = '#ffc4be';
+        setTimeout(function () {
+            article.remove();
+            location.reload();
+        }, 300);
+    }
+}
+
 
 function ajax(method, url, params, callback, callbackParams) {
     var http;
@@ -94,6 +124,7 @@ function ajax(method, url, params, callback, callbackParams) {
                 callback(callbackParams, false);
             } else {
                 var obj = JSON.parse(http.responseText);
+                console.log(obj);
                 if (obj.message) {
                     alert(obj.message);
                 } else {
@@ -108,4 +139,3 @@ function ajax(method, url, params, callback, callbackParams) {
     http.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     http.send(params + "&_token=" + token);
 }
-
